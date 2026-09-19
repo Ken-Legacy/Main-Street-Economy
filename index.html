@@ -1,0 +1,1046 @@
+<title>Main Street Barometer</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper:        #F1F3EE;
+    --surface:      #FFFFFF;
+    --surface-2:    #FAFAF7;
+    --ink:          #12181A;
+    --ink-secondary:#4B5559;
+    --ink-muted:    #7C8783;
+    --hairline:     #DBE1D9;
+    --accent:       #A9691B;
+    --accent-ink:   #7A4C11;
+    --accent-soft:  #F1E1C4;
+    --accent-2:     #2E5D54;
+    --accent-2-soft:#DCEAE6;
+    --good:         #0ca30c;
+    --warning:      #b8790b;
+    --serious:      #c05a2f;
+    --critical:     #b23434;
+    --chart-surface:#FCFCFB;
+    --chart-grid:   #E1E0D9;
+    --chart-axis:   #C3C2B7;
+    --series-1:     #2a78d6;
+    --series-2:     #eb6834;
+    --series-3:     #1baf7a;
+    --series-4:     #eda100;
+    --shadow:       0 1px 2px rgba(18,24,26,0.04), 0 1px 1px rgba(18,24,26,0.03);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper:        #0D1113;
+      --surface:      #171C1E;
+      --surface-2:    #1C2224;
+      --ink:          #F1F3EE;
+      --ink-secondary:#B7C0BE;
+      --ink-muted:    #7C8783;
+      --hairline:     #2A3230;
+      --accent:       #E0AC4D;
+      --accent-ink:   #F2C97B;
+      --accent-soft:  #3A2E14;
+      --accent-2:     #6FA79B;
+      --accent-2-soft:#1B2B27;
+      --good:         #3cc23c;
+      --warning:      #e0ac4d;
+      --serious:      #ec835a;
+      --critical:     #e66767;
+      --chart-surface:#1a1a19;
+      --chart-grid:   #2c2c2a;
+      --chart-axis:   #383835;
+      --series-1:     #3987e5;
+      --series-2:     #d95926;
+      --series-3:     #199e70;
+      --series-4:     #c98500;
+      --shadow:       0 1px 2px rgba(0,0,0,0.3);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper:        #0D1113;
+    --surface:      #171C1E;
+    --surface-2:    #1C2224;
+    --ink:          #F1F3EE;
+    --ink-secondary:#B7C0BE;
+    --ink-muted:    #7C8783;
+    --hairline:     #2A3230;
+    --accent:       #E0AC4D;
+    --accent-ink:   #F2C97B;
+    --accent-soft:  #3A2E14;
+    --accent-2:     #6FA79B;
+    --accent-2-soft:#1B2B27;
+    --good:         #3cc23c;
+    --warning:      #e0ac4d;
+    --serious:      #ec835a;
+    --critical:     #e66767;
+    --chart-surface:#1a1a19;
+    --chart-grid:   #2c2c2a;
+    --chart-axis:   #383835;
+    --series-1:     #3987e5;
+    --series-2:     #d95926;
+    --series-3:     #199e70;
+    --series-4:     #c98500;
+    --shadow:       0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-inline: 20px;
+    padding-block: 28px 60px;
+  }
+  h1, h2, h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0;
+  }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+  /* ---------- Header ---------- */
+  header.top {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 26px;
+    border-bottom: 1px solid var(--hairline);
+    margin-bottom: 32px;
+  }
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    font-weight: 600;
+  }
+  .kicker::before {
+    content: "";
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+  header.top h1 {
+    font-size: clamp(30px, 5vw, 42px);
+    letter-spacing: -0.01em;
+  }
+  .dek {
+    max-width: 62ch;
+    color: var(--ink-secondary);
+    font-size: 16px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    margin-top: 4px;
+  }
+  .meta-row span { display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ---------- Section ---------- */
+  section.group {
+    margin-bottom: 44px;
+  }
+  .group-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .group-head .titles { max-width: 62ch; }
+  .eyebrow {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    margin-bottom: 4px;
+    display: block;
+  }
+  .group-head h2 { font-size: 22px; margin-bottom: 4px; }
+  .group-head p { margin: 0; color: var(--ink-secondary); font-size: 14px; }
+
+  /* ---------- Stat tiles ---------- */
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(228px, 1fr));
+    gap: 14px;
+  }
+  .tile {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 16px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: var(--shadow);
+  }
+  .tile .label {
+    font-size: 12.5px;
+    color: var(--ink-secondary);
+    font-weight: 600;
+    line-height: 1.35;
+    min-height: 2.6em;
+  }
+  .tile .value {
+    font-family: "Public Sans", sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .tile .value sup {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    margin-left: 2px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: flex-start;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 3px 8px 3px 7px;
+    border-radius: 100px;
+  }
+  .chip.critical { background: color-mix(in srgb, var(--critical) 16%, transparent); color: var(--critical); }
+  .chip.serious  { background: color-mix(in srgb, var(--serious) 16%, transparent); color: var(--serious); }
+  .chip.warning  { background: color-mix(in srgb, var(--warning) 18%, transparent); color: var(--warning); }
+  .chip.good     { background: color-mix(in srgb, var(--good) 16%, transparent); color: var(--good); }
+  .tile .context {
+    font-size: 13px;
+    color: var(--ink-secondary);
+    flex-grow: 1;
+  }
+  .tile .source {
+    font-size: 11px;
+    color: var(--ink-muted);
+    border-top: 1px solid var(--hairline);
+    padding-top: 8px;
+    margin-top: 2px;
+  }
+
+  /* ---------- Chart cards ---------- */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 18px 20px 14px;
+    box-shadow: var(--shadow);
+    margin-top: 14px;
+  }
+  .chart-card h3 { font-size: 16px; margin-bottom: 2px; }
+  .chart-card .chart-sub { font-size: 12.5px; color: var(--ink-secondary); margin-bottom: 10px; }
+  .chart-card svg { width: 100%; height: auto; overflow: visible; display: block; }
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    font-size: 12px; color: var(--ink-secondary);
+    margin-top: 8px;
+  }
+  .legend .key { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .chart-card .source { font-size: 11px; color: var(--ink-muted); margin-top: 10px; }
+
+  .bar { cursor: default; }
+  .bar:hover rect.mark { filter: brightness(1.08); }
+  .tick-label, .axis-label { fill: var(--ink-muted); font-size: 10.5px; font-family: "Public Sans", sans-serif; }
+  .value-label { fill: var(--ink); font-size: 11.5px; font-weight: 700; font-family: "Public Sans", sans-serif; }
+  .grid-line { stroke: var(--chart-grid); stroke-width: 1; }
+
+  #tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 12px;
+    padding: 6px 9px;
+    border-radius: 6px;
+    line-height: 1.4;
+    z-index: 50;
+    opacity: 0;
+    transform: translate(-50%, -100%);
+    transition: opacity 0.08s ease;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  #tooltip.show { opacity: 1; }
+  #tooltip .tt-title { font-weight: 700; margin-bottom: 1px; }
+
+  /* ---------- Two-up layout ---------- */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 720px) {
+    .split { grid-template-columns: 1fr; }
+  }
+
+  footer.foot {
+    border-top: 1px solid var(--hairline);
+    margin-top: 40px;
+    padding-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  footer.foot h4 {
+    font-family: "Public Sans", sans-serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    margin: 0 0 8px;
+    font-weight: 700;
+  }
+  .source-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 6px 20px;
+    font-size: 12.5px;
+    color: var(--ink-secondary);
+  }
+  .source-grid a { color: var(--accent-ink); text-decoration: none; }
+  .source-grid a:hover { text-decoration: underline; }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+
+<div class="wrap">
+
+  <header class="top">
+    <span class="kicker">Working-economy tracker</span>
+    <h1>Main Street Barometer</h1>
+    <p class="dek">The stock market measures the wealth of people who own stocks — about the richest tenth of the country. This tracker follows a different set of vital signs: what's happening to wages, debt, and basic-needs affordability for the other nine-tenths.</p>
+    <div class="meta-row">
+      <span>📅 Built September 19, 2026</span>
+      <span>🔁 Update cadence varies by source — quarterly (Fed, NY Fed), monthly (BLS, BEA), annual (USDA)</span>
+    </div>
+  </header>
+
+  <!-- ============ LABOR & WAGES ============ -->
+  <section class="group">
+    <div class="group-head">
+      <div class="titles">
+        <span class="eyebrow">01 — Labor &amp; wages</span>
+        <h2>Is work paying?</h2>
+        <p>What a paycheck actually buys, and how many people are cashing one.</p>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="label">Real wage growth, year over year</div>
+        <div class="value">−0.3<sup>%</sup></div>
+        <span class="chip serious">● Falling behind</span>
+        <div class="context">Nominal wages rose 3.1% but consumer prices rose 3.4% (Aug 2025–Aug 2026) — the recovery in purchasing power that ran through early 2026 has now stalled.</div>
+        <div class="source">Source: BLS, Real Earnings Summary, Aug 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Labor force participation rate</div>
+        <div class="value">61.6<sup>%</sup></div>
+        <span class="chip critical">▼ Lowest since 1976*</span>
+        <div class="context">Down 0.9 points in just six months (Dec 2025–Jun 2026). *Excluding the 2020 pandemic disruption — the sharpest non-recession drop in decades.</div>
+        <div class="source">Source: Federal Reserve Bank of St. Louis, Aug 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Labor share of nonfarm business income</div>
+        <div class="value">52.8<sup>%</sup></div>
+        <span class="chip critical">▼ Lowest ever recorded</span>
+        <div class="context">The lowest reading since this BLS series began in 1947. Labor share held near 60–66% for decades post-WWII before a sustained decline starting in the early 2000s.</div>
+        <div class="source">Source: BLS, "Labor share at its lowest level," Q2 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">CEO-to-typical-worker pay ratio</div>
+        <div class="value">325<sup>:1</sup></div>
+        <span class="chip serious">▲ Up from 21:1 in 1965</span>
+        <div class="context">Typical worker pay has grown 26% since 1965; CEO pay has grown over 1,000%. See chart below.</div>
+        <div class="source">Source: Economic Policy Institute, "CEO Pay in 2025," Sept 2026</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Prices are outrunning paychecks again</h3>
+      <div class="chart-sub">Year-over-year change, August 2026</div>
+      <svg id="chart-wage" viewBox="0 0 640 200" role="img" aria-label="Bar chart comparing 3.4 percent CPI inflation to 3.1 percent nominal wage growth, year over year to August 2026"></svg>
+      <div class="legend" id="legend-wage"></div>
+      <div class="source">Source: BLS, Employment Cost / CPI releases, Aug 2026</div>
+    </div>
+  </section>
+
+  <!-- ============ DEBT ============ -->
+  <section class="group">
+    <div class="group-head">
+      <div class="titles">
+        <span class="eyebrow">02 — Household debt &amp; fragility</span>
+        <h2>What's the cushion look like?</h2>
+        <p>Savings, revolving debt, and how many households are already behind.</p>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="label">Personal savings rate</div>
+        <div class="value">2.7<sup>%</sup></div>
+        <span class="chip warning">● Thin cushion</span>
+        <div class="context">Share of disposable income households are setting aside — well below the ~7% long-run pre-2020 norm.</div>
+        <div class="source">Source: BEA, Personal Income &amp; Outlays, Jun 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Credit card balances, 90+ days delinquent</div>
+        <div class="value">12.8<sup>%</sup></div>
+        <span class="chip critical">▲ Highest since the Great Recession</span>
+        <div class="context">Up from 7.6% in Q3 2022. About 60% of the 175 million U.S. cardholders carry a revolving balance month to month.</div>
+        <div class="source">Source: NY Fed, Liberty Street Economics, Aug 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Auto loan delinquency</div>
+        <div class="value">5.5<sup>%</sup></div>
+        <span class="chip critical">▲ Series record</span>
+        <div class="context">Share of auto loan balances seriously delinquent, Q2 2026 — the highest since this data series began.</div>
+        <div class="source">Source: NY Fed, Household Debt &amp; Credit Report, Q2 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Total household debt</div>
+        <div class="value">$18.8<sup>T</sup></div>
+        <span class="chip warning">● 4.7% in some stage of delinquency</span>
+        <div class="context">Credit card debt alone: $1.26 trillion, nearing the all-time high set in late 2025.</div>
+        <div class="source">Source: NY Fed, Household Debt &amp; Credit Report, Q2 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Adults using "buy now, pay later" for groceries</div>
+        <div class="value">29<sup>%</sup></div>
+        <span class="chip warning">▲ Up from 14% two years ago</span>
+        <div class="context">Roughly 1 in 3 consumers have used apps like Klarna or Affirm to finance groceries — usage has roughly doubled in two years, a marker of cash-flow stress, not credit-access.</div>
+        <div class="source">Source: LendingTree survey, 6,000+ U.S. consumers, 2026</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ WEALTH & DISTRIBUTION ============ -->
+  <section class="group">
+    <div class="group-head">
+      <div class="titles">
+        <span class="eyebrow">03 — Wealth &amp; income distribution</span>
+        <h2>Who's actually capturing the growth?</h2>
+        <p>Where the wealth sits, and how concentrated the spending power has become.</p>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="label">Top 1% share of household net worth</div>
+        <div class="value">31.6<sup>%</sup></div>
+        <span class="chip serious">▲ Up from 22.8% in 1989</span>
+        <div class="context">The top 1% alone now holds nearly a third of all U.S. household wealth.</div>
+        <div class="source">Source: Federal Reserve, Distributional Financial Accounts, Q1 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Bottom 50% share of household net worth</div>
+        <div class="value">2.5<sup>%</sup></div>
+        <span class="chip critical">▼ Down from 3.5% in 1989</span>
+        <div class="context">Half the country splits about one-fortieth of the nation's wealth.</div>
+        <div class="source">Source: Federal Reserve, Distributional Financial Accounts, Q1 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Bottom 90% share of total consumer spending</div>
+        <div class="value">~50<sup>%</sup></div>
+        <span class="chip warning">● Record concentration</span>
+        <div class="context">The top 10% of earners now account for nearly half of all U.S. consumer spending — the highest share since this data began in 1989 — leaving the other 90% the remaining half.</div>
+        <div class="source">Source: Moody's Analytics (Mark Zandi), Q2 2025</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Top 10%'s share of discretionary spending</div>
+        <div class="value">36.2<sup>%</sup></div>
+        <span class="chip warning">● Nearly matches the bottom 70% combined</span>
+        <div class="context">On non-essentials alone (excludes housing, healthcare, groceries), the top 10% of earners spend almost as much in total dollars as the bottom 70% of earners combined. The bottom 10% account for just 2.1% of discretionary spending.</div>
+        <div class="source">Source: Bank of America Institute (Krisberg &amp; Tinsley), 2023 data, trend confirmed continuing into 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Top 10% share of household net worth</div>
+        <div class="value">67.9<sup>%</sup></div>
+        <span class="chip serious">▲ Up from 60.8% in 1989</span>
+        <div class="context">The top decile now owns more than two-thirds of everything.</div>
+        <div class="source">Source: Federal Reserve, Distributional Financial Accounts, Q1 2026</div>
+      </div>
+    </div>
+
+    <div class="split">
+      <div class="chart-card">
+        <h3>The top 0.1% nearly doubled its share since 1989</h3>
+        <div class="chart-sub">Share of U.S. household net worth, by wealth band</div>
+        <svg id="chart-wealth" viewBox="0 0 640 300" role="img" aria-label="Grouped bar chart of wealth share by percentile band, comparing 1989 to 2026"></svg>
+        <div class="legend" id="legend-wealth"></div>
+        <div class="source">Source: Federal Reserve, Distributional Financial Accounts (via Wikipedia compilation), Q1 2026</div>
+      </div>
+
+      <div class="chart-card">
+        <h3>CEO pay has pulled away from worker pay</h3>
+        <div class="chart-sub">CEO-to-typical-worker compensation ratio</div>
+        <svg id="chart-ceo" viewBox="0 0 640 300" role="img" aria-label="Bar chart of CEO to worker pay ratio rising from 21 to 1 in 1965 to 325 to 1 in 2025"></svg>
+        <div class="source">Source: Economic Policy Institute, "CEO Pay in 2025," Sept 2026</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BASIC NEEDS ============ -->
+  <section class="group">
+    <div class="group-head">
+      <div class="titles">
+        <span class="eyebrow">04 — Basic-needs affordability</span>
+        <h2>Can people afford to live?</h2>
+        <p>Housing, food, and healthcare — the non-negotiables.</p>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="label">Workers who can't afford the median-priced home</div>
+        <div class="value">~74<sup>%</sup></div>
+        <span class="chip critical">● Roughly 3 in 4</span>
+        <div class="context">Independent studies in 2026 put the range at 65–77% of households priced out of the median home, depending on methodology.</div>
+        <div class="source">Source: NAHB / Bankrate housing-affordability studies, 2026 (range cited)</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">U.S. households facing food insecurity</div>
+        <div class="value">13.7<sup>%</sup></div>
+        <span class="chip warning">▲ Trending toward 16% in late 2025</span>
+        <div class="context">18.3 million households, 2024 — USDA's last annual report before discontinuing the survey. Monthly tracking since shows the rate climbing further, hitting 16% in November 2025.</div>
+        <div class="source">Source: USDA ERS (2024 annual); Purdue Center for Food Demand Analysis (monthly tracker)</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Adults who delayed or skipped care over cost</div>
+        <div class="value">92<sup>%</sup></div>
+        <span class="chip critical">● Nearly universal</span>
+        <div class="context">Adults under 28 were hit hardest — over 94% postponed treatment for financial reasons. Source is an industry survey (a debt-settlement firm) rather than a government or peer-reviewed one, though the direction is corroborated by separate Gallup polling on health-cost anxiety.</div>
+        <div class="source">Source: JG Wentworth survey, 1,500+ U.S. adults, Aug 2026 — directionally corroborated by Gallup</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ORDER OF ABANDONMENT ============ -->
+  <section class="group">
+    <div class="group-head">
+      <div class="titles">
+        <span class="eyebrow">05 — The order things get given up</span>
+        <h2>What goes first, and what people hold onto longest</h2>
+        <p>People don't lose everything at once. Utilities go into arrears first; rent gets severely stretched next; the car — the last link to a paycheck — is held onto until it's physically repossessed.</p>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="label">Renters severely cost-burdened (50%+ of income on rent)</div>
+        <div class="value">26<sup>%</sup></div>
+        <span class="chip critical">▲ Record high</span>
+        <div class="context">12.1 million renter households. A broader 49% (22.7 million households) pay more than the standard 30% affordability threshold — also a record.</div>
+        <div class="source">Source: Harvard Joint Center for Housing Studies, "America's Rental Housing 2026"</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Households behind on utility bills</div>
+        <div class="value">~1 in 6</div>
+        <span class="chip serious">● $23B in arrears nationally</span>
+        <div class="context">About 4 million households faced a utility disconnection in 2025. Often the first bill to slide — held less tightly than rent or the car payment.</div>
+        <div class="source">Source: National Energy Assistance Directors Association (NEADA), Jan 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Vehicles actually repossessed</div>
+        <div class="value">1.73<sup>M</sup></div>
+        <span class="chip critical">▲ Up 43% since 2022</span>
+        <div class="context">Highest annual repossession count since 2009. This is the line your auto-delinquency figure (above) is heading toward — the point where the last avenue to work is physically taken away.</div>
+        <div class="source">Source: Cox Automotive, 2024 data (most recent annual figure)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE AUTO DEBT TRAP ============ -->
+  <section class="group">
+    <div class="group-head">
+      <div class="titles">
+        <span class="eyebrow">06 — Why the car-loan trap is structural</span>
+        <h2>People aren't just falling behind — the loans are rigged to make that likely</h2>
+        <p>Lenders have stretched loan terms to keep monthly payments looking affordable, which quietly extends how long a buyer stays underwater — explaining why delinquency keeps climbing even as people fight hardest to keep paying.</p>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="label">New-vehicle buyers financing for 84+ months</div>
+        <div class="value">23.9<sup>%</sup></div>
+        <span class="chip warning">▲ Record share</span>
+        <div class="context">Nearly 1 in 4 new-car buyers now take 7-year loans. Average loan term across all new-vehicle purchases: 70.4 months, also a record.</div>
+        <div class="source">Source: Edmunds, Q2 2026 financing report</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">New-vehicle trade-ins with negative equity</div>
+        <div class="value">28.1<sup>%</sup></div>
+        <span class="chip critical">▲ 4-year high</span>
+        <div class="context">Averaging $6,905 still owed on the old loan — an all-time record. That debt gets rolled into the new loan, so the buyer starts underwater on day one.</div>
+        <div class="source">Source: Edmunds, Q3 2025 data (most recent published breakdown)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HIDDEN LABOR SLACK ============ -->
+  <section class="group">
+    <div class="group-head">
+      <div class="titles">
+        <span class="eyebrow">07 — Slack the headline numbers hide</span>
+        <h2>The unemployment rate everyone quotes isn't the whole picture</h2>
+        <p>A low headline rate can coexist with people working part-time who need full-time work, people who've stopped looking, and people juggling two jobs just to get by.</p>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="label">Prime-age (25–54) male employment rate</div>
+        <div class="value">85.8<sup>%</sup></div>
+        <span class="chip serious">▼ Down from 96.0% in 1953</span>
+        <div class="context">If prime-age men worked today at the 1953 rate, about 10 million more would be employed. A cleaner "who's actually working" gauge than the labor-force participation rate, since it excludes students and retirees by design.</div>
+        <div class="source">Source: BLS, employment-population ratio, Aug 2026</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Workers holding more than one job</div>
+        <div class="value">5.2<sup>%</sup></div>
+        <span class="chip warning">● 8.5 million people</span>
+        <div class="context">A wage-inadequacy signal the unemployment rate can't see: people who are "employed" but still can't get by on one paycheck.</div>
+        <div class="source">Source: BLS, Employment Situation, Aug 2026</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>The real slack is nearly double the headline rate</h3>
+      <div class="chart-sub">August 2026 — U-3 (official) vs. U-6 (includes underemployed &amp; marginally attached)</div>
+      <svg id="chart-u6" viewBox="0 0 640 200" role="img" aria-label="Bar chart comparing 4.1 percent official unemployment rate to 7.7 percent broader U-6 underemployment rate, August 2026"></svg>
+      <div class="legend" id="legend-u6"></div>
+      <div class="source">Source: BLS / Federal Reserve Bank of St. Louis (FRED), Aug 2026</div>
+    </div>
+  </section>
+
+  <!-- ============ THE SAFETY NET BEFORE THE FALL ============ -->
+  <section class="group">
+    <div class="group-head">
+      <div class="titles">
+        <span class="eyebrow">08 — The safety net people fall back on before they fall through</span>
+        <h2>What absorbs the shock when a paycheck doesn't stretch</h2>
+        <p>Before someone hits the metrics above, they typically move back in with family or raid their own future — quietly, before it ever shows up as delinquency or default.</p>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <div class="label">Adults 18–29 living with their parents</div>
+        <div class="value">49<sup>%</sup></div>
+        <span class="chip serious">▲ Up 12 points since 2019</span>
+        <div class="context">Family absorbing a shock that used to be absorbed by independent living — a form of hidden housing insecurity that doesn't show up in eviction or homelessness data.</div>
+        <div class="source">Source: Federal Reserve, Survey of Household Economics and Decisionmaking (SHED), 2025 data</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">401(k) participants taking hardship withdrawals</div>
+        <div class="value">6<sup>%</sup></div>
+        <span class="chip serious">▲ Record share</span>
+        <div class="context">Top reasons: avoiding foreclosure or eviction (36%), medical expenses (31%), tuition (13%). People are liquidating retirement security to cover today's bills — a quiet leading indicator of tomorrow's crisis.</div>
+        <div class="source">Source: Vanguard, "How America Saves 2026"</div>
+      </div>
+
+      <div class="tile">
+        <div class="label">Adults who couldn't cover a $400 emergency expense in cash</div>
+        <div class="value">37<sup>%</sup></div>
+        <span class="chip critical">● More than 1 in 3</span>
+        <div class="context">The classic liquidity-buffer canary: distinct from net worth, since someone can own a home and a 401(k) on paper and still be one flat tire away from a payday loan.</div>
+        <div class="source">Source: Federal Reserve, Economic Well-Being of U.S. Households, 2025 data (pub. May 2026)</div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div>
+      <h4>Primary sources</h4>
+      <div class="source-grid">
+        <span><a href="https://www.bls.gov/news.release/realer.nr0.htm" target="_blank" rel="noopener">BLS — Real Earnings</a></span>
+        <span><a href="https://www.bls.gov/opub/ted/2026/labor-share-at-its-lowest-level-52-8-percent-in-second-quarter-2026.htm" target="_blank" rel="noopener">BLS — Labor Share, Q2 2026</a></span>
+        <span><a href="https://www.lendingtree.com/personal/buy-now-pay-later-loan-statistics/" target="_blank" rel="noopener">LendingTree — BNPL Survey</a></span>
+        <span><a href="https://www.marketplace.org/story/2025/09/17/top-10-of-earners-make-up-half-of-us-retail-spending" target="_blank" rel="noopener">Moody's Analytics — Consumer Spending Share</a></span>
+        <span><a href="https://finance.yahoo.com/economy/article/k-shaped-spending-the-top-10-drop-nearly-as-much-on-nonessentials-as-the-bottom-70-combined-132332976.html" target="_blank" rel="noopener">Bank of America Institute — Discretionary Spending</a></span>
+        <span><a href="https://www.bea.gov/data/income-saving/personal-saving-rate" target="_blank" rel="noopener">BEA — Personal Saving Rate</a></span>
+        <span><a href="https://www.newyorkfed.org/microeconomics/hhdc" target="_blank" rel="noopener">NY Fed — Household Debt &amp; Credit</a></span>
+        <span><a href="https://fred.stlouisfed.org/series/WFRBST01134" target="_blank" rel="noopener">Federal Reserve — Distributional Financial Accounts</a></span>
+        <span><a href="https://www.epi.org/publication/ceo-pay/" target="_blank" rel="noopener">Economic Policy Institute — CEO Pay</a></span>
+        <span><a href="https://www.ers.usda.gov/topics/food-nutrition-assistance/food-security-in-the-us/key-statistics-graphics" target="_blank" rel="noopener">USDA ERS — Food Security</a></span>
+        <span><a href="https://www.stlouisfed.org/on-the-economy/2026/aug/what-is-behind-sharp-drop-labor-force-participation" target="_blank" rel="noopener">St. Louis Fed — Labor Force Participation</a></span>
+        <span><a href="https://www.jchs.harvard.edu/blog/six-takeaways-americas-rental-housing-2026" target="_blank" rel="noopener">Harvard JCHS — America's Rental Housing 2026</a></span>
+        <span><a href="https://neada.org/wp-content/uploads/2026/01/winterupdatejan26.pdf" target="_blank" rel="noopener">NEADA — Winter Energy Update, Jan 2026</a></span>
+        <span><a href="https://finance.yahoo.com/news/car-repossessions-went-43-over-114500333.html" target="_blank" rel="noopener">Cox Automotive — Repossession Data</a></span>
+        <span><a href="https://www.aftermarketmatters.com/national-news/nearly-1-in-4-new-vehicle-buyers-stretched-loans-to-84-months-or-longer-in-q2/" target="_blank" rel="noopener">Edmunds — Auto Loan Terms, Q2 2026</a></span>
+        <span><a href="https://www.cnbc.com/2026/01/15/underwater-car-trade-ins.html" target="_blank" rel="noopener">Edmunds — Negative Equity Trade-Ins</a></span>
+        <span><a href="https://hubbardobrieneconomics.com/2026/09/07/whats-happened-to-male-employment/" target="_blank" rel="noopener">BLS — Prime-Age Male Employment Ratio</a></span>
+        <span><a href="https://www.bls.gov/news.release/empsit.t16.htm" target="_blank" rel="noopener">BLS — Multiple Jobholders</a></span>
+        <span><a href="https://fred.stlouisfed.org/series/U6RATE" target="_blank" rel="noopener">FRED — U-6 Underemployment Rate</a></span>
+        <span><a href="https://fortune.com/2026/07/09/half-young-adults-live-home-financial-support-parents/" target="_blank" rel="noopener">Federal Reserve SHED — Young Adults Living With Parents</a></span>
+        <span><a href="https://www.cbsnews.com/news/401k-hardship-withdrawals-rise-vanguard-report/" target="_blank" rel="noopener">Vanguard — 401(k) Hardship Withdrawals</a></span>
+        <span><a href="https://www.federalreserve.gov/publications/2026-economic-well-being-of-us-households-in-2025-savings-investments.htm" target="_blank" rel="noopener">Federal Reserve — $400 Emergency Expense</a></span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  var tooltip = document.getElementById('tooltip');
+  function showTip(evt, title, sub) {
+    tooltip.innerHTML = '<div class="tt-title">' + title + '</div>' + (sub ? '<div>' + sub + '</div>' : '');
+    tooltip.style.left = evt.clientX + 'px';
+    tooltip.style.top = (evt.clientY - 10) + 'px';
+    tooltip.classList.add('show');
+  }
+  function hideTip() { tooltip.classList.remove('show'); }
+
+  // ---------- Chart 1: wage vs inflation paired bar ----------
+  function drawWageChart() {
+    var svg = document.getElementById('chart-wage');
+    var data = [
+      { label: 'CPI inflation', value: 3.4, color: cssVar('--series-2') },
+      { label: 'Nominal wage growth', value: 3.1, color: cssVar('--series-1') }
+    ];
+    var W = 640, H = 200;
+    var padL = 40, padR = 24, padT = 16, padB = 30;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var maxVal = 4;
+    var barW = 90;
+    var gap = plotW / data.length;
+
+    var ns = "http://www.w3.org/2000/svg";
+    function el(tag, attrs) {
+      var e = document.createElementNS(ns, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    // gridlines at 0,1,2,3,4
+    for (var g = 0; g <= maxVal; g++) {
+      var y = padT + plotH - (g / maxVal) * plotH;
+      svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y, y2: y, class: 'grid-line' }));
+      var lbl = el('text', { x: padL - 8, y: y + 3, 'text-anchor': 'end', class: 'tick-label' });
+      lbl.textContent = g + '%';
+      svg.appendChild(lbl);
+    }
+
+    data.forEach(function (d, i) {
+      var cx = padL + gap * i + gap / 2;
+      var barH = (d.value / maxVal) * plotH;
+      var x = cx - barW / 2;
+      var y = padT + plotH - barH;
+
+      var group = el('g', { class: 'bar' });
+      var rect = el('rect', {
+        x: x, y: y, width: barW, height: barH, rx: 4, ry: 4,
+        fill: d.color, class: 'mark'
+      });
+      group.appendChild(rect);
+
+      var val = el('text', { x: cx, y: y - 8, 'text-anchor': 'middle', class: 'value-label' });
+      val.textContent = d.value.toFixed(1) + '%';
+      group.appendChild(val);
+
+      var lab = el('text', { x: cx, y: H - 10, 'text-anchor': 'middle', class: 'tick-label' });
+      lab.textContent = d.label;
+      group.appendChild(lab);
+
+      group.addEventListener('mousemove', function (e) { showTip(e, d.label, d.value.toFixed(1) + '% year over year, Aug 2026'); });
+      group.addEventListener('mouseleave', hideTip);
+
+      svg.appendChild(group);
+    });
+
+    svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: padT + plotH, y2: padT + plotH, stroke: cssVar('--chart-axis'), 'stroke-width': 1 }));
+
+    var legend = document.getElementById('legend-wage');
+    data.forEach(function (d) {
+      var key = document.createElement('span');
+      key.className = 'key';
+      key.innerHTML = '<span class="swatch" style="background:' + d.color + '"></span>' + d.label;
+      legend.appendChild(key);
+    });
+  }
+
+  // ---------- Chart 2: wealth share grouped bar ----------
+  function drawWealthChart() {
+    var svg = document.getElementById('chart-wealth');
+    var series = [
+      { label: '1989', color: cssVar('--series-1') },
+      { label: '2026', color: cssVar('--series-2') }
+    ];
+    var bands = [
+      { label: 'Top 0.1%', v: [8.6, 14.4] },
+      { label: '99–99.9%', v: [14.2, 17.2] },
+      { label: '90–99%', v: [38.0, 36.3] },
+      { label: '50–90%', v: [35.7, 29.6] },
+      { label: 'Bottom 50%', v: [3.5, 2.5] }
+    ];
+    var W = 640, H = 300;
+    var padL = 40, padR = 16, padT = 16, padB = 46;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var maxVal = 40;
+    var groupW = plotW / bands.length;
+    var barW = 20, barGap = 3;
+
+    var ns = "http://www.w3.org/2000/svg";
+    function el(tag, attrs) {
+      var e = document.createElementNS(ns, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    for (var g = 0; g <= maxVal; g += 10) {
+      var y = padT + plotH - (g / maxVal) * plotH;
+      svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y, y2: y, class: 'grid-line' }));
+      var lbl = el('text', { x: padL - 8, y: y + 3, 'text-anchor': 'end', class: 'tick-label' });
+      lbl.textContent = g + '%';
+      svg.appendChild(lbl);
+    }
+
+    bands.forEach(function (band, bi) {
+      var groupX = padL + groupW * bi;
+      var pairW = barW * 2 + barGap;
+      var startX = groupX + (groupW - pairW) / 2;
+
+      band.v.forEach(function (val, si) {
+        var barH = (val / maxVal) * plotH;
+        var x = startX + si * (barW + barGap);
+        var y = padT + plotH - barH;
+
+        var group = el('g', { class: 'bar' });
+        var rect = el('rect', {
+          x: x, y: y, width: barW, height: barH, rx: 3, ry: 3,
+          fill: series[si].color, class: 'mark'
+        });
+        group.appendChild(rect);
+
+        if (si === 1) {
+          var val2 = el('text', { x: x + barW / 2, y: y - 6, 'text-anchor': 'middle', class: 'value-label', 'font-size': '9.5' });
+          val2.textContent = val.toFixed(1);
+          group.appendChild(val2);
+        }
+
+        group.addEventListener('mousemove', function (e) {
+          showTip(e, band.label, series[si].label + ': ' + val.toFixed(1) + '% of net worth');
+        });
+        group.addEventListener('mouseleave', hideTip);
+
+        svg.appendChild(group);
+      });
+
+      var lab = el('text', { x: groupX + groupW / 2, y: H - 30, 'text-anchor': 'middle', class: 'tick-label' });
+      lab.textContent = band.label;
+      svg.appendChild(lab);
+    });
+
+    svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: padT + plotH, y2: padT + plotH, stroke: cssVar('--chart-axis'), 'stroke-width': 1 }));
+
+    var note = el('text', { x: padL, y: H - 8, class: 'tick-label' });
+    note.textContent = 'Non-cumulative bands — each slice is that group’s own share, bands don’t stack to 100%.';
+    svg.appendChild(note);
+
+    var legend = document.getElementById('legend-wealth');
+    series.forEach(function (s) {
+      var key = document.createElement('span');
+      key.className = 'key';
+      key.innerHTML = '<span class="swatch" style="background:' + s.color + '"></span>' + s.label;
+      legend.appendChild(key);
+    });
+  }
+
+  // ---------- Chart 3: CEO ratio over time ----------
+  function drawCeoChart() {
+    var svg = document.getElementById('chart-ceo');
+    var data = [
+      { year: '1965', value: 21 },
+      { year: '1978', value: 31 },
+      { year: '1989', value: 60 },
+      { year: '2000', value: 380 },
+      { year: '2025', value: 325 }
+    ];
+    var W = 640, H = 300;
+    var padL = 46, padR = 16;
+    var padT = 16, padB = 34;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var maxVal = 400;
+    var n = data.length;
+    var slot = plotW / n;
+    var barW = 46;
+
+    var ramp = ['#cde2fb', '#9ec5f4', '#5598e7', '#2a78d6', '#184f95'];
+    var rampDark = ['#184f95', '#1c5cab', '#256abf', '#2a78d6', '#3987e5'];
+    var isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches &&
+                 document.documentElement.getAttribute('data-theme') !== 'light';
+    if (document.documentElement.getAttribute('data-theme') === 'dark') isDark = true;
+    var colors = isDark ? rampDark : ramp;
+
+    var ns = "http://www.w3.org/2000/svg";
+    function el(tag, attrs) {
+      var e = document.createElementNS(ns, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    for (var g = 0; g <= maxVal; g += 100) {
+      var y = padT + plotH - (g / maxVal) * plotH;
+      svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y, y2: y, class: 'grid-line' }));
+      var lbl = el('text', { x: padL - 8, y: y + 3, 'text-anchor': 'end', class: 'tick-label' });
+      lbl.textContent = g;
+      svg.appendChild(lbl);
+    }
+
+    data.forEach(function (d, i) {
+      var cx = padL + slot * i + slot / 2;
+      var barH = (d.value / maxVal) * plotH;
+      var x = cx - barW / 2;
+      var y = padT + plotH - barH;
+
+      var group = el('g', { class: 'bar' });
+      var rect = el('rect', {
+        x: x, y: y, width: barW, height: barH, rx: 4, ry: 4,
+        fill: colors[i], class: 'mark'
+      });
+      group.appendChild(rect);
+
+      var val = el('text', { x: cx, y: y - 8, 'text-anchor': 'middle', class: 'value-label' });
+      val.textContent = d.value + ':1';
+      group.appendChild(val);
+
+      var lab = el('text', { x: cx, y: H - 12, 'text-anchor': 'middle', class: 'tick-label' });
+      lab.textContent = d.year;
+      group.appendChild(lab);
+
+      group.addEventListener('mousemove', function (e) { showTip(e, d.year, 'CEOs paid ' + d.value + '× the typical worker'); });
+      group.addEventListener('mouseleave', hideTip);
+
+      svg.appendChild(group);
+    });
+
+    svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: padT + plotH, y2: padT + plotH, stroke: cssVar('--chart-axis'), 'stroke-width': 1 }));
+  }
+
+  // ---------- Chart 4: U-3 vs U-6 paired bar ----------
+  function drawU6Chart() {
+    var svg = document.getElementById('chart-u6');
+    var data = [
+      { label: 'U-3 (official rate)', value: 4.1, color: cssVar('--series-1') },
+      { label: 'U-6 (incl. underemployed)', value: 7.7, color: cssVar('--series-2') }
+    ];
+    var W = 640, H = 200;
+    var padL = 40, padR = 24, padT = 16, padB = 30;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var maxVal = 8;
+    var barW = 90;
+    var gap = plotW / data.length;
+
+    var ns = "http://www.w3.org/2000/svg";
+    function el(tag, attrs) {
+      var e = document.createElementNS(ns, tag);
+      for (var k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    for (var g = 0; g <= maxVal; g += 2) {
+      var y = padT + plotH - (g / maxVal) * plotH;
+      svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: y, y2: y, class: 'grid-line' }));
+      var lbl = el('text', { x: padL - 8, y: y + 3, 'text-anchor': 'end', class: 'tick-label' });
+      lbl.textContent = g + '%';
+      svg.appendChild(lbl);
+    }
+
+    data.forEach(function (d, i) {
+      var cx = padL + gap * i + gap / 2;
+      var barH = (d.value / maxVal) * plotH;
+      var x = cx - barW / 2;
+      var y = padT + plotH - barH;
+
+      var group = el('g', { class: 'bar' });
+      var rect = el('rect', {
+        x: x, y: y, width: barW, height: barH, rx: 4, ry: 4,
+        fill: d.color, class: 'mark'
+      });
+      group.appendChild(rect);
+
+      var val = el('text', { x: cx, y: y - 8, 'text-anchor': 'middle', class: 'value-label' });
+      val.textContent = d.value.toFixed(1) + '%';
+      group.appendChild(val);
+
+      var lab = el('text', { x: cx, y: H - 10, 'text-anchor': 'middle', class: 'tick-label' });
+      lab.textContent = d.label;
+      group.appendChild(lab);
+
+      group.addEventListener('mousemove', function (e) { showTip(e, d.label, d.value.toFixed(1) + '%, Aug 2026'); });
+      group.addEventListener('mouseleave', hideTip);
+
+      svg.appendChild(group);
+    });
+
+    svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: padT + plotH, y2: padT + plotH, stroke: cssVar('--chart-axis'), 'stroke-width': 1 }));
+
+    var legend = document.getElementById('legend-u6');
+    data.forEach(function (d) {
+      var key = document.createElement('span');
+      key.className = 'key';
+      key.innerHTML = '<span class="swatch" style="background:' + d.color + '"></span>' + d.label;
+      legend.appendChild(key);
+    });
+  }
+
+  drawWageChart();
+  drawWealthChart();
+  drawCeoChart();
+  drawU6Chart();
+
+})();
+</script>
